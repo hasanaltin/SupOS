@@ -1,0 +1,72 @@
+#!/bin/bash
+##
+# BASH menu script that checks:
+#   - Memory usage
+#   - CPU load
+#   - Number of TCP connections 
+#   - Kernel version
+##
+
+
+
+
+
+
+# proxy starts here #
+function proxy() {
+    echo ""
+sudo ./proxy.sh
+    echo ""
+    echo ""	
+}
+# proxy ends here #
+
+
+
+# syslog starts here #
+function syslog() {
+    echo ""
+sudo ./syslog.sh
+    echo ""
+    echo ""	
+}
+# syslog ends here #
+
+
+
+##
+# Color  Variables
+##
+green='\e[32m'
+blue='\e[34m'
+yellow='\e[1;33m'
+clear='\e[0m'
+##
+# Color Functions
+##
+ColorGreen(){
+	echo -ne $green$1$clear
+}
+ColorBlue(){
+	echo -ne $blue$1$clear
+}
+ColorYellow(){
+	echo -ne $yellow$1$clear
+}
+menu(){
+echo -ne "
+Proxy Management Menu
+$(ColorGreen '1)') Proxy Management
+$(ColorGreen '2)') Syslog Management
+$(ColorGreen '0)') Exit
+$(ColorBlue 'Choose an option:') "
+        read a
+        case $a in			
+	        1) proxy ; menu ;;
+	        2) syslog ; menu ;;						
+		0) exit 0 ;;
+		*) echo -e $red"Wrong option."$clear; WrongCommand;;
+        esac
+}
+# Call the menu function
+menu

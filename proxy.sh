@@ -283,8 +283,6 @@ rm -r zabbix* proxy.env  > /dev/null
 # proxy-factory-default ends here #
 
 
-
-
 ##
 # Color  Variables
 ##
@@ -318,7 +316,7 @@ $(ColorGreen '8)') Start Proxy
 $(ColorGreen '9)') Proxy Logs
 $(ColorGreen '10)') Show Settings
 $(ColorGreen '11)') Factory Default
-$(ColorGreen '0)') Exit
+$(ColorGreen '0)') Main Menu
 $(ColorBlue 'Choose an option:') "
         read a
         case $a in
