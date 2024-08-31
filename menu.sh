@@ -66,7 +66,7 @@ $(ColorBlue 'Choose an option:') "
 	        1) proxy ; menu ;;
 	        2) syslog ; menu ;;						
 		0) exit 0 ;;
-		*) echo -e $red"Wrong option."$clear; WrongCommand;;
+		*) echo -e $red"Wrong option."
         esac
 }
 # Call the menu function

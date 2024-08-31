@@ -244,7 +244,7 @@ $(ColorBlue 'Choose an option:') "
 	        3) container-installation ; menu ;;			
 	        4) show-settings ; menu ;;											
 	        0) initial-menu ; menu ;;	
-		*) echo -e $red"Wrong option."$clear; WrongCommand;;
+		*) echo -e $red"Wrong option."
         esac
 }
 # Call the menu function

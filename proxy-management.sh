@@ -47,19 +47,13 @@ sudo ./proxy-maintenance.sh
 # proxy-logs starts here #
 function proxy-logs() {
 echo ""
-echo -ne "$(ColorYellow 'Last 10 logs are listed below.')"
+echo -ne "$(ColorYellow 'Last 10 logs are listed below. Live logging screen for 30 seconds. New logs will be printed out below while waiting.')"
     echo ""	
-docker logs --tail 10 zabbix-proxy
+timeout -sHUP 30s docker logs -f -n 10 zabbix-proxy
     echo ""
-    read -p " "  -t 360
-sudo ./proxy-setup-configurations.sh	
+sudo ./proxy-management.sh	
 }
 # proxy-logs ends here #
-
-
-
-
-
 
 
 # initial-menu starts here #
@@ -106,7 +100,7 @@ $(ColorBlue 'Choose an option:') "
 	        3) proxy-maintenance ; menu ;;
 	        4) proxy-logs ; menu ;;
 	        0) initial-menu ; menu ;;			
-		*) echo -e $red"Wrong option."$clear; WrongCommand;;
+		*) echo -e $red"Wrong option."
         esac
 }
 # Call the menu function
