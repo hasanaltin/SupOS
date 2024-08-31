@@ -6,14 +6,17 @@
 #   - Number of TCP connections 
 #   - Kernel version
 ##
-
-
-
+trap '' 2
+while true
+do
+clear
 
 # menu1 starts here #
 function menu1() {
     echo ""
-	echo -ne "$(ColorYellow 'Menu1 is selected.')"
+	echo -ne "$(ColorYellow 'Syslog Management')"
+    echo ""
+sudo ./syslog-management.sh
     echo ""
 }
 # menu1 ends here #
@@ -23,7 +26,9 @@ function menu1() {
 # menu2 starts here #
 function menu2() {
     echo ""
-	echo -ne "$(ColorYellow 'Menu2 is selected.')"
+	echo -ne "$(ColorYellow 'Syslog Management')"
+    echo ""
+sudo ./syslog-management.sh
     echo ""
 }
 # menu2 ends here #
@@ -32,15 +37,25 @@ function menu2() {
 
 # menu3 starts here #
 function menu3() {
+	echo ""
+	echo -ne "$(ColorYellow 'Syslog Management')"
     echo ""
-	echo -ne "$(ColorYellow 'Menu3 is selected.')"
+sudo ./syslog-management.sh
     echo ""
 }
-# menu3 ends here #
+# proxy-services endss here #
 
 
 
 
+# initial-menu starts here #
+function initial-menu() {
+    echo ""
+sudo ./menu.sh
+    echo ""
+    echo ""	
+}
+# initial-menu ends here #
 
 ##
 # Color  Variables
@@ -63,20 +78,23 @@ ColorYellow(){
 }
 menu(){
 echo -ne "
-Proxy Management
-$(ColorGreen '1)') Menu 1
-$(ColorGreen '2)') Menu 2
-$(ColorGreen '3)') Menu 3
+SYSLOG MANAGEMENT
+$(ColorGreen '1)') Menu1
+$(ColorGreen '2)') Menu2
+$(ColorGreen '3)') Menu3
 $(ColorGreen '0)') Main Menu
 $(ColorBlue 'Choose an option:') "
         read a
         case $a in
 	        1) menu1 ; menu ;;
-	        2) menu2 ; menu ;;
-	        3) menu3 ; menu ;;														
-		0) exit 0 ;;
-		*) echo -e $red"Wrong option."$clear; WrongCommand;;
+	        2) menu2 ; menu ;;			
+	        3) menu3 ; menu ;;
+	        0) initial-menu ; menu ;;			
+		*) echo -e $red"Wrong option."
         esac
 }
 # Call the menu function
 menu
+	read input
+	done
+:2	

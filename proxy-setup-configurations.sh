@@ -6,11 +6,14 @@
 #   - Number of TCP connections 
 #   - Kernel version
 ##
+trap '' 2
+while true
+do
+clear
 
 
-
-# setup-config starts here #
-function setup-config() {
+# server-connections starts here #
+function server-connections() {
     echo ""
 function safe_mkdir {
     if [ ! -d "$1" ]; then
@@ -57,9 +60,6 @@ echo "ZBX_CONFIGFREQUENCY=300" >>proxy.env
 echo "ZBX_CACHESIZE=1000M" >>proxy.env
 echo "ZBX_STARTHTTPPOLLERS=20" >>proxy.env
 echo "ZBX_TIMEOUT=30" >>proxy.env
-echo "ZBX_JAVAGATEWAY_ENABLE=true" >>proxy.env
-echo "ZBX_JAVAGATEWAYPORT=10052" >>proxy.env
-echo "ZBX_STARTJAVAPOLLERS=20" >>proxy.env
 echo "ZBX_STARTPOLLERSUNREACHABLE=20" >>proxy.env
 echo "ZBX_STARTPOLLERS=50" >>proxy.env
 echo "ZBX_STARTTRAPPERS=50" >>proxy.env
@@ -69,28 +69,17 @@ echo "ZBX_STARTDISCOVERERS=3" >> proxy.env
 echo "ZBX_STARTDBSYNCERS=6" >> proxy.env
 echo "ZBX_ENABLE_SNMP_TRAPS=true" >> proxy.env
 	echo ""
-	echo -ne "$(ColorYellow 'Setup config is completed.')"
-    echo ""	
-}
-# setup-config ends here #
-
-
-
-# remove-config starts here #
-function remove-config() {
+	read -p "$(ColorYellow 'Connection config is completing.')" -t 3
     echo ""
-	echo -ne "$(ColorYellow 'Configuration is removed.')"
-    echo ""
-sed --in-place '/ZBX_ENABLE_SNMP_TRAPS/d' proxy.env  > /dev/null
-sed --in-place '/ZBX_HOSTNAME/d' proxy.env  > /dev/null
-sed --in-place '/ZBX_SERVER_HOST/d' proxy.env  > /dev/null
-sed --in-place '/ZBX_SERVER_PORT/d' proxy.env  > /dev/null
+sudo ./proxy-setup-configurations.sh	
 }
-# remove-config ends here #
+# server-connections ends here #
 
 
-# setup-psk starts here #
-function setup-psk() {
+
+
+# server-encryption starts here #
+function server-encryption() {
     echo ""
 
 
@@ -98,31 +87,36 @@ function opt_replace {
   grep -q "^$1" "$3" && sed -i "s|^$1.*|$1=$2|" "$3" || echo "$1=$2" >>"$3"
 }
 
-PSK_IDENTITY=PSK_001
+
 PSK_FILE=zabbix_proxy.psk
 
 # Obtain PSK identity
-read -p "Enter PSK identity [${PSK_IDENTITY}]: " input
+  read -p "$(ColorYellow 'Enter PSK identity : ')" input
 PSK_IDENTITY=${input:-$PSK_IDENTITY}
 
+
+
+
 # Obtain PSK key
-read -p "Enter pre-generated PSK key - leave empty to generate one now: " PSK_KEY
+  read -p "$(ColorYellow 'Enter pre-generated PSK key - leave empty to generate one now:  ')" PSK_KEY
 if [ "${PSK_KEY}" == "" ]; then
   PSK_KEY=`openssl rand -hex 32`
 
-  echo "Generated PSK: ${PSK_KEY}"
+  echo "$(ColorYellow 'Generated PSK:  ')" ${PSK_KEY}
   echo
 fi
 
 # Check for PSK file
 if [ -e "zabbix/enc/${PSK_FILE}" ]; then
-  read -p "Old PSK key file exists - remove [y/N]?" -n 1 -r
-  echo
+  read -p "$(ColorYellow 'Old PSK key file exists - remove [y/N]? ')" -n 1 -r
+  echo  
   if [[ "$REPLY" =~ ^[yY]$ ]]; then
     rm "zabbix/enc/${PSK_FILE}"
+  read -p "$(ColorYellow 'Copy generated PSK code because this menu will be redirected to the setup configuration menu in 10 seconds.')"  -t 10	
   else
-    echo "PSK setup terminated."
-    exit 0
+    read -p "$(ColorYellow 'Encryption setup terminated, you are going to be redirected to the setup configuration menu.')"  -t 20
+sudo ./proxy-setup-configurations.sh	
+   exit 0
   fi
 fi
 
@@ -139,30 +133,17 @@ opt_replace ZBX_TLSACCEPT psk proxy.env
 opt_replace ZBX_TLSPSKIDENTITY "${PSK_IDENTITY}" proxy.env
 opt_replace ZBX_TLSPSKFILE "${PSK_FILE}" proxy.env
  echo ""
+sudo ./proxy-setup-configurations.sh 
 }
-# setup-psk ends here #
+# server-encryption ends here #
 
 
 
-# remove-psk starts here #
-function remove-psk() {
-    echo ""
-	echo -ne "$(ColorYellow 'PSK configuration is removed.')"
-    echo ""	
-sed --in-place '/ZBX_TLSACCEPT/d' proxy.env  > /dev/null
-sed --in-place '/ZBX_TLSCONNECT/d' proxy.env  > /dev/null
-sed --in-place '/ZBX_TLSPSKIDENTITY/d' proxy.env  > /dev/null
-sed --in-place '/ZBX_TLSPSKFILE/d' proxy.env  > /dev/null
-    echo ""	
-}
-# remove-psk ends here #
-
-
-# setup-proxy starts here #
-function setup-proxy() {
+# container-installation starts here #
+function container-installation() {
 	echo ""	
-set -e
-
+	echo -ne "$(ColorYellow 'Container installations will be completed soon. Later you can use the Log menu to check it out what is happening.')"
+	echo ""	
 export CONTAINER_VERSION=`cat zabbix/container.version`
 export CONTAINER_IMAGE=`cat zabbix/container.image`
 if [ -z "$CONTAINER_IMAGE" ]; then
@@ -199,89 +180,34 @@ chmod g+w zabbix/snmptraps/snmptraps.log
 
 docker-compose up -d
 
+    echo ""	
     echo ""
-	echo -ne "$(ColorYellow 'Setup Proxy is completed and containers started.')"	
-    echo ""
+sudo ./proxy-setup-configurations.sh 	
 }
 # setup-ends ends here #
 
 
 
-# remove-proxy starts here #
-function remove-proxy() {
-	echo ""	
-set -e
-
-docker-compose down  > /dev/null
-
-    echo ""
-	echo -ne "$(ColorYellow 'Proxy is removed.')"	
-    echo ""
-}
-# remove-proxy ends here #
-
-
-
-# proxy-stop starts here #
-function proxy-stop() {
-	echo ""
-	echo -ne "$(ColorYellow 'Following services are stopped.')"	
-    echo ""
-docker stop zabbix-proxy zabbix-snmptraps
-    echo ""
-}
-# proxy-stop endss here #
-
-
-# proxy-start starts here #
-function proxy-start() {
-	echo ""
-	echo -ne "$(ColorYellow 'Following services are started.')"
-    echo ""
-docker start zabbix-proxy zabbix-snmptraps
-    echo ""
-}
-# proxy-start ends here #
-
-
-
-# proxy-logs starts here #
-function proxy-logs() {
-echo ""
-echo -ne "$(ColorYellow 'Last 10 logs are listed below.')"
-    echo ""	
-docker logs --tail 10 zabbix-proxy
-    echo ""
-}
-# proxy-logs ends here #
-
-
 # show-settings starts here #
-function show-config() {
+function show-settings() {
 echo ""
 echo -ne "$(ColorYellow 'Proxy Settings are shown below.')"
     echo ""	
     echo ""	
 cat  proxy.env
-    echo ""
+    read -p " "  -t 10
+sudo ./proxy-setup-configurations.sh	
 }
 # show-settings ends here #
 
-
-# proxy-factory-default starts here #
-function proxy-factory-default() {
-	echo ""	
-set -e
-
-docker-compose down  > /dev/null
-rm -r zabbix* proxy.env  > /dev/null
-
+# initial-menu starts here #
+function initial-menu() {
     echo ""
-	echo -ne "$(ColorYellow 'Proxy factory-default is completed.')"
+sudo ./proxy-management.sh
     echo ""
+    echo ""	
 }
-# proxy-factory-default ends here #
-
+# initial-menu ends here #
 
 ##
 # Color  Variables
@@ -304,36 +230,25 @@ ColorYellow(){
 }
 menu(){
 echo -ne "
-Proxy Management Menu
-$(ColorGreen '1)') Setup Config
-$(ColorGreen '2)') Setup PSK
-$(ColorGreen '3)') Setup Proxy
-$(ColorGreen '4)') Remove Config
-$(ColorGreen '5)') Remove PSK
-$(ColorGreen '6)') Remove Proxy
-$(ColorGreen '7)') Stop Proxy
-$(ColorGreen '8)') Start Proxy
-$(ColorGreen '9)') Proxy Logs
-$(ColorGreen '10)') Show Settings
-$(ColorGreen '11)') Factory Default
-$(ColorGreen '0)') Main Menu
+SETUP CONFIGURATIONS
+$(ColorGreen '1)') Server Connections
+$(ColorGreen '2)') Server Encryptions
+$(ColorGreen '3)') Container Installations
+$(ColorGreen '4)') Show Settings
+$(ColorGreen '0)') Previous Menu
 $(ColorBlue 'Choose an option:') "
         read a
         case $a in
-	        1) setup-config ; menu ;;
-	        2) setup-psk ; menu ;;
-	        3) setup-proxy ; menu ;;			
-	        4) remove-config ; menu ;;
-	        5) remove-psk ; menu ;;
-	        6) remove-proxy ; menu ;;			
-	        7) proxy-stop ; menu ;;
-	        8) proxy-start ; menu ;;
-	        9) proxy-logs ; menu ;;
-	        10) show-settings ; menu ;;					
-	        11) proxy-factory-default ; menu ;;							
-		0) exit 0 ;;
+	        1) server-connections ; menu ;;
+	        2) server-encryption ; menu ;;
+	        3) container-installation ; menu ;;			
+	        4) show-settings ; menu ;;											
+	        0) initial-menu ; menu ;;	
 		*) echo -e $red"Wrong option."$clear; WrongCommand;;
         esac
 }
 # Call the menu function
 menu
+	read input
+	done
+:2	

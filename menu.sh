@@ -6,16 +6,17 @@
 #   - Number of TCP connections 
 #   - Kernel version
 ##
-
-
-
+trap '' 2
+while true
+do
+clear
 
 
 
 # proxy starts here #
 function proxy() {
     echo ""
-sudo ./proxy.sh
+sudo ./proxy-management.sh
     echo ""
     echo ""	
 }
@@ -26,7 +27,7 @@ sudo ./proxy.sh
 # syslog starts here #
 function syslog() {
     echo ""
-sudo ./syslog.sh
+sudo ./syslog-management.sh
     echo ""
     echo ""	
 }
@@ -55,7 +56,7 @@ ColorYellow(){
 }
 menu(){
 echo -ne "
-Proxy Management Menu
+SUPOS MANAGEMENT MENU
 $(ColorGreen '1)') Proxy Management
 $(ColorGreen '2)') Syslog Management
 $(ColorGreen '0)') Exit
@@ -70,3 +71,6 @@ $(ColorBlue 'Choose an option:') "
 }
 # Call the menu function
 menu
+	read input
+	done
+:2	
