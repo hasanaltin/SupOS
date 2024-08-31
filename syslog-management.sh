@@ -1,11 +1,5 @@
 #!/bin/bash
-##
-# BASH menu script that checks:
-#   - Memory usage
-#   - CPU load
-#   - Number of TCP connections 
-#   - Kernel version
-##
+
 trap '' 2
 while true
 do
